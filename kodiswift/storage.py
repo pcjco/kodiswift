@@ -10,6 +10,10 @@ This module contains persistent storage classes.
 """
 from __future__ import absolute_import
 
+from future import standard_library
+from future.utils import PY2, PY3
+standard_library.install_aliases()
+from builtins import object
 import collections
 import json
 import os
@@ -18,7 +22,7 @@ import shutil
 from datetime import datetime
 
 try:
-    import cPickle as pickle
+    import pickle as pickle
 except ImportError:
     import pickle
 
@@ -74,7 +78,7 @@ class PersistentStorage(collections.MutableMapping):
         return '%s(%r)' % (self.__class__.__name__, self._store)
 
     def items(self):
-        return self._store.items()
+        return list(self._store.items())
 
     def load(self):
         """Load the file from disk.
@@ -88,15 +92,26 @@ class PersistentStorage(collections.MutableMapping):
         """
 
         if not self._loaded and os.path.exists(self.file_path):
-            with open(self.file_path, 'rb') as f:
+            if PY2:
+                with open(self.file_path, 'rb') as f:
+                    for loader in (pickle.load, json.load):
+                        try:
+                            f.seek(0)
+                            self._store = loader(f)
+                            self._loaded = True
+                            break
+                        except (KeyError, pickle.UnpicklingError):
+                            pass
+            else:
                 for loader in (pickle.load, json.load):
-                    try:
-                        f.seek(0)
-                        self._store = loader(f)
-                        self._loaded = True
-                        break
-                    except pickle.UnpicklingError:
-                        pass
+                    with open(self.file_path, 'rb' if loader == pickle.load else 'r') as f:
+                        try:
+                            f.seek(0)
+                            self._store = loader(f)
+                            self._loaded = True
+                            break
+                        except (KeyError, pickle.UnpicklingError):
+                            pass
             # If the file exists and wasn't able to be loaded, raise an error.
             if not self._loaded:
                 raise UnknownFormat('Failed to load file')
@@ -108,14 +123,24 @@ class PersistentStorage(collections.MutableMapping):
     def sync(self):
         temp_file = self.file_path + '.tmp'
         try:
-            with open(temp_file, 'wb') as f:
-                if self.file_format == Formats.PICKLE:
-                    pickle.dump(self._store, f, 2)
-                elif self.file_format == Formats.JSON:
-                    json.dump(self._store, f, separators=(',', ':'))
-                else:
-                    raise NotImplementedError(
-                        'Unknown file format ' + repr(self.file_format))
+            if PY2:
+                with open(temp_file, 'wb') as f:
+                    if self.file_format == Formats.PICKLE:
+                        pickle.dump(self._store, f, 2)
+                    elif self.file_format == Formats.JSON:
+                        json.dump(self._store, f, separators=(',', ':'))
+                    else:
+                        raise NotImplementedError(
+                            'Unknown file format ' + repr(self.file_format))
+            else:
+                with open(temp_file, 'wb' if self.file_format == Formats.PICKLE else 'w') as f:
+                    if self.file_format == Formats.PICKLE:
+                        pickle.dump(self._store, f, 2)
+                    elif self.file_format == Formats.JSON:
+                        json.dump(self._store, f, separators=(',', ':'))
+                    else:
+                        raise NotImplementedError(
+                            'Unknown file format ' + repr(self.file_format))
         except Exception:
             if os.path.exists(temp_file):
                 os.remove(temp_file)
@@ -141,18 +166,18 @@ class TimedStorage(PersistentStorage):
     def __getitem__(self, item):
         val, timestamp = self._store[item]
         ttl_diff = datetime.utcnow() - datetime.utcfromtimestamp(timestamp)
-        if self.ttl and ttl_diff > self.ttl:
+        if self.ttl and ttl_diff >= self.ttl:
             del self._store[item]
             raise KeyError
         return val
 
     def __repr__(self):
         return '%s(%r)' % (self.__class__.__name__,
-                           dict((k, v[0]) for k, v in self._store.items()))
+                           dict((k, v[0]) for k, v in list(self._store.items())))
 
     def items(self):
         items = []
-        for k in self._store.keys():
+        for k in list(self._store.keys()):
             try:
                 items.append((k, self[k]))
             except KeyError:

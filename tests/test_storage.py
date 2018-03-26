@@ -11,35 +11,35 @@ class TestCache(unittest.TestCase):
 
     def test_pickle(self):
         with NamedTemporaryFile() as temp:
-            storage = PersistentStorage(temp.name, Formats.PICKLE)
+            storage = PersistentStorage(temp.name+'.pcl', Formats.PICKLE)
 
             storage['name'] = 'jon'
             storage.update({'answer': 42})
             storage.close()
 
-            storage2 = PersistentStorage(temp.name, Formats.PICKLE)
+            storage2 = PersistentStorage(temp.name+'.pcl', Formats.PICKLE)
             storage2.load()
             self.assertEqual(storage, storage2)
-            self.assertEqual(2, len(storage2.items()))
-            self.assertTrue('name' in storage2.keys())
-            self.assertTrue('answer' in storage2.keys())
+            self.assertEqual(2, len(list(storage2.items())))
+            self.assertTrue('name' in list(storage2.keys()))
+            self.assertTrue('answer' in list(storage2.keys()))
             self.assertEqual('jon', storage2.pop('name'))
             self.assertEqual(42, storage2['answer'])
 
     def test_json(self):
         with NamedTemporaryFile() as temp:
-            storage = PersistentStorage(temp.name, file_format='json')
+            storage = PersistentStorage(temp.name+'.pcl', file_format='json')
 
             storage['name'] = 'jon'
             storage.update({'answer': '42'})
             storage.close()
 
-            storage2 = PersistentStorage(temp.name, file_format='json')
+            storage2 = PersistentStorage(temp.name+'.pcl', file_format='json')
             storage2.load()
             self.assertEqual(sorted(storage.items()), sorted(storage2.items()))
-            self.assertEqual(2, len(storage2.items()))
-            self.assertTrue('name' in storage2.keys())
-            self.assertTrue('answer' in storage2.keys())
+            self.assertEqual(2, len(list(storage2.items())))
+            self.assertTrue('name' in list(storage2.keys()))
+            self.assertTrue('answer' in list(storage2.keys()))
             self.assertEqual('jon', storage2.pop('name'))
             self.assertEqual('42', storage2['answer'])
 

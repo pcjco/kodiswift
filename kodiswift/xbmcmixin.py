@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
+from past.builtins import basestring, unicode
+from builtins import object
 import os
 import warnings
 from datetime import timedelta

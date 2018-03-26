@@ -11,7 +11,10 @@ request from Kodi.
 """
 from __future__ import absolute_import
 
-import urlparse
+from future import standard_library
+standard_library.install_aliases()
+from builtins import object
+import urllib.parse
 
 from kodiswift.common import unpickle_args
 
@@ -40,7 +43,7 @@ class Request(object):
         # urlparse doesn't like the 'plugin' scheme, so pass a protocol
         # relative url, e.g. //plugin.video.helloxbmc/path
         self.scheme, remainder = url.split(':', 1)
-        parts = urlparse.urlparse(remainder)
+        parts = urllib.parse.urlparse(remainder)
         self.netloc, self.path, self.query_string = (
             parts[1], parts[2], parts[4])
-        self.args = unpickle_args(urlparse.parse_qs(self.query_string))
+        self.args = unpickle_args(urllib.parse.parse_qs(self.query_string))

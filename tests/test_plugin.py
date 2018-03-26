@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
 import os
 import pickle
 import shutil
@@ -10,7 +11,7 @@ from mock import patch
 import kodiswift
 from kodiswift import Plugin
 from kodiswift.mockxbmc.xbmc import TEMP_DIR
-from utils import preserve_cli_mode, preserve_cwd
+from .utils import preserve_cli_mode, preserve_cwd
 
 # Ensure we are starting clean by removing old test folders
 try:
@@ -307,7 +308,7 @@ class TestUnsyncedCaches(TestCase):
         # ensure the cache is persisted to disk
         fn = os.path.join(plugin.storage_path, 'people')
         synced = pickle.load(open(fn, 'rb'))
-        self.assertEqual(synced.keys(), ['foo'])
+        self.assertEqual(list(synced.keys()), ['foo'])
 
         # Since storage's store the timestamp as well, we just check our
         # actual value since we can't guess the timestamp

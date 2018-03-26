@@ -11,6 +11,8 @@ for xbmcgui.ListItem.
 """
 from __future__ import absolute_import
 
+from past.builtins import basestring
+from builtins import object
 import warnings
 
 from kodiswift import xbmcgui
@@ -310,12 +312,12 @@ class ListItem(object):
             # Need to support existing tuples, but prefer to have a dict for
             # properties.
             if hasattr(properties, 'items'):
-                properties = properties.items()
+                properties = list(properties.items())
             for key, val in properties:
                 listitem.set_property(key, val)
 
         if stream_info:
-            for stream_type, stream_values in stream_info.items():
+            for stream_type, stream_values in list(stream_info.items()):
                 listitem.add_stream_info(stream_type, stream_values)
 
         if context_menu:
@@ -333,7 +335,7 @@ class ListItem(object):
         return self_props == other_props
 
     def __str__(self):
-        return ('%s (%s)' % (self.label, self.path)).encode('utf-8')
+        return '%s (%s)' % (self.label, self.path)
 
     def __repr__(self):
-        return ("<ListItem '%s'>" % self.label).encode('utf-8')
+        return "<ListItem '%s'>" % self.label

@@ -252,7 +252,7 @@ class Plugin(XBMCMixin):
         The route decorator provides the same functionality.
         """
         rule = UrlRule(url_rule, view_func, name, options)
-        if name in self._view_functions.keys():
+        if name in list(self._view_functions.keys()):
             # TODO: Raise exception for ambiguous views during registration
             log.warning('Cannot add url rule "%s" with name "%s". There is '
                         'already a view with that name', url_rule, name)
@@ -276,8 +276,8 @@ class Plugin(XBMCMixin):
             rule = self._view_functions[endpoint]
         except KeyError:
             try:
-                rule = (rule for rule in self._view_functions.values()
-                        if rule.view_func == endpoint).next()
+                rule = next((rule for rule in list(self._view_functions.values())
+                        if rule.view_func == endpoint))
             except StopIteration:
                 raise NotFoundException(
                     '%s does not match any known patterns.' % endpoint)
@@ -308,7 +308,7 @@ class Plugin(XBMCMixin):
 
         # Close any open storages which will persist them to disk
         if hasattr(self, '_unsynced_storage'):
-            for storage in self._unsynced_storage.values():
+            for storage in list(self._unsynced_storage.values()):
                 log.debug('Saving a %s storage to disk at "%s"',
                           storage.file_format, storage.file_path)
                 storage.close()

@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
 import os
 import sys
 import unittest
 
 from kodiswift import Module, Plugin, NotFoundException
-from utils import preserve_cwd
+from .utils import preserve_cwd
 
 
 def create_plugin_module():

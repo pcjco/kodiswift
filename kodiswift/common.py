@@ -10,10 +10,14 @@ This module contains some common helpful functions.
 """
 from __future__ import absolute_import
 
-import urllib
+from future import standard_library
+standard_library.install_aliases()
+from past.builtins import basestring
+from builtins import object
+import urllib.request, urllib.parse, urllib.error
 
 try:
-    import cPickle as pickle
+    import pickle as pickle
 except ImportError:
     import pickle
 
@@ -39,7 +43,7 @@ def kodi_url(url, **options):
     Returns:
         str:
     """
-    options = urllib.urlencode(options)
+    options = urllib.parse.urlencode(options)
     if options:
         return url + '|' + options
     return url
@@ -54,7 +58,7 @@ def clean_dict(data):
     Returns:
         dict:
     """
-    return dict((k, v) for k, v in data.items() if v is not None)
+    return dict((k, v) for k, v in list(data.items()) if v is not None)
 
 
 def pickle_dict(items):
@@ -70,7 +74,7 @@ def pickle_dict(items):
     """
     ret = {}
     pickled_keys = []
-    for k, v in items.items():
+    for k, v in list(items.items()):
         if isinstance(v, basestring):
             ret[k] = v
         else:
@@ -102,9 +106,9 @@ def unpickle_args(items):
 
     pickled_keys = pickled[0].split(',')
     ret = {}
-    for k, v in items.items():
+    for k, v in list(items.items()):
         if k in pickled_keys:
-            ret[k] = [pickle.loads(val) for val in v]
+            ret[k] = [pickle.loads(val.encode()) for val in v]
         else:
             ret[k] = v
     return ret
@@ -121,7 +125,7 @@ def unpickle_dict(items):
     """
     pickled_keys = items.pop('_pickled', '').split(',')
     ret = {}
-    for k, v in items.items():
+    for k, v in list(items.items()):
         if k in pickled_keys:
             ret[k] = pickle.loads(v)
         else:
@@ -141,7 +145,7 @@ def download_page(url, data=None):
     Returns:
         str: The results of requesting the URL.
     """
-    conn = urllib.urlopen(url, data)
+    conn = urllib.request.urlopen(url, data)
     resp = conn.read()
     conn.close()
     return resp

@@ -1,7 +1,9 @@
+from future import standard_library
+standard_library.install_aliases()
 # -*- coding: utf-8 -*-
 import unittest
 from mock import patch
-import StringIO
+import io
 from kodiswift.cli import console
 from kodiswift.listitem import ListItem
 
@@ -19,7 +21,7 @@ class TestConsole(unittest.TestCase):
         ]
         list_items = [ListItem.from_dict(**item) for item in items]
 
-        with patch('sys.stdout', new=StringIO.StringIO()) as stdout:
+        with patch('sys.stdout', new=io.StringIO()) as stdout:
             console.display_video(list_items)
 
         output = stdout.getvalue().strip()
@@ -36,8 +38,8 @@ class TestConsole(unittest.TestCase):
         list_items = [ListItem.from_dict(**item) for item in items]
         list_items[1].set_played(True)
 
-        with patch('sys.stdout', new=StringIO.StringIO()) as stdout:
-            console.display_listitems(list_items, "PARENT_URL")
+        with patch('sys.stdout', new=io.StringIO()) as stdout:
+            console.display_listitems(list_items, 'PARENT_URL')
 
         output = stdout.getvalue().strip()
         self.assertEquals(output, '-------------------\n'
@@ -52,7 +54,7 @@ class TestConsole(unittest.TestCase):
         ]
         list_items = [ListItem.from_dict(**item) for item in items]
 
-        with patch('sys.stdout', new=StringIO.StringIO()) as stdout:
+        with patch('sys.stdout', new=io.StringIO()) as stdout:
             console.display_listitems(list_items, 'PARENT_URL')
 
         output = stdout.getvalue().strip()
@@ -73,7 +75,7 @@ class TestConsole(unittest.TestCase):
         ]
         list_items = [ListItem.from_dict(**item) for item in items]
 
-        with patch('sys.stdout', new=StringIO.StringIO()) as stdout:
+        with patch('sys.stdout', new=io.StringIO()) as stdout:
             console.display_listitems(list_items, 'PARENT_URL')
 
         output = stdout.getvalue().strip()

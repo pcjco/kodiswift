@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from builtins import zip
+from past.builtins import unicode
 import os
 import tempfile
 import unittest
@@ -28,7 +30,7 @@ class MixedIn(XBMCMixin):
     storage_path = '/tmp'
 
     def __init__(self, **kwargs):
-        for attr_name, attr_value in kwargs.items():
+        for attr_name, attr_value in list(kwargs.items()):
             setattr(self, attr_name, attr_value)
 
 
@@ -208,9 +210,9 @@ class TestXBMCMixin(unittest.TestCase):
 
         # cache should now contain 1 item
         storage = plugin.get_storage('.functions')
-        self.assertEqual(len(storage.items()), 1)
+        self.assertEqual(len(list(storage.items())), 1)
         plugin.clear_function_cache()
-        self.assertEqual(len(storage.items()), 0)
+        self.assertEqual(len(list(storage.items())), 0)
 
 
 class TestAddItems(unittest.TestCase):

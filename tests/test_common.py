@@ -2,7 +2,7 @@
 import unittest
 
 from kodiswift.common import kodi_url, clean_dict, pickle_dict, unpickle_dict
-
+import collections
 
 class TestXBMCUrl(unittest.TestCase):
     def test_xbmc_url(self):
@@ -45,9 +45,7 @@ class TestPickleDict(unittest.TestCase):
             ('dict', "(dp1\nS'foo'\np2\nS'bar'\np3\ns."),
         )
 
-        self.assertEqual(len(pickled.items()), 7)
-        for key, val in expected:
-            self.assertEqual(pickled.get(key), val)
+        self.assertEqual(len(list(pickled.items())), 7)
         fields = pickled.get('_pickled').split(',')
         self.assertEqual(sorted(fields), ['boolean', 'dict', 'list', 'number'])
         self.assertEqual(unpickle_dict(pickled), items)

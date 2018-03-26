@@ -8,9 +8,11 @@
     :copyright: (c) 2012 by Jonathan Beluch
     :license: GPLv3, see LICENSE for more details.
 """
-from __future__ import print_function, absolute_import
+from __future__ import print_function
 
 
+from builtins import input
+from builtins import str
 def get_max_len(items):
     """Returns the max of the lengths for the provided items"""
     try:
@@ -51,7 +53,7 @@ def display_listitems(items, url):
                             'Label'.ljust(label_width)),
             '-' * line_width,
         ]
-        print('\n'.join(header + output))
+        print(u'\n'.join(header + output))
 
 
 def display_video(items):
@@ -72,14 +74,14 @@ def display_video(items):
         '-' * line_width,
         parent_line,
     ]
-    print('\n'.join(output))
+    print(u'\n'.join(output))
 
 
 def get_user_choice(items):
     """Returns the selected item from provided items or None if 'q' was
     entered for quit.
     """
-    choice = raw_input('Choose an item or "q" to quit: ')
+    choice = eval(input('Choose an item or "q" to quit: '))
     while choice != 'q':
         try:
             item = items[int(choice)]
@@ -87,12 +89,12 @@ def get_user_choice(items):
             return item
         except ValueError:
             # Passed something that couldn't be converted with int()
-            choice = raw_input('You entered a non-integer. Choice must be an'
-                               ' integer or "q": ')
+            choice = eval(input('You entered a non-integer. Choice must be an'
+                               ' integer or "q": '))
         except IndexError:
             # Passed an integer that was out of range of the list of urls
-            choice = raw_input('You entered an invalid integer. Choice must '
-                               'be from above url list or "q": ')
+            choice = eval(input('You entered an invalid integer. Choice must '
+                               'be from above url list or "q": '))
     return None
 
 
@@ -100,4 +102,4 @@ def continue_or_quit():
     """Prints an exit message and returns False if the user wants to
     quit.
     """
-    return raw_input('Enter to continue or "q" to quit') != 'q'
+    return eval(input('Enter to continue or "q" to quit')) != 'q'
